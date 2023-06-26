@@ -47,11 +47,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 saveUser.setByte(3, age);
                 saveUser.executeUpdate();
                 connection.commit();
+                System.out.println(String.format("User с именем – %s добавлен в базу данных ", name));
             } catch (SQLException e) {
                 connection.rollback();
                 throw new RuntimeException();
             }
-            System.out.println(String.format("User с именем – %s добавлен в базу данных ", name));
+
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

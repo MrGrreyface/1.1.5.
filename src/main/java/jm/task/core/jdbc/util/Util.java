@@ -5,6 +5,7 @@ import jm.task.core.jdbc.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.Configuration;
@@ -32,49 +33,39 @@ public class Util {
         Connection conn = DriverManager.getConnection(connectionURL, userName, password);
         return conn;
     }
+
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration();
-                Properties setting = new Properties();
-                setting.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-                setting.put(Environment.URL, "jdbc:mysql://" + hostName + ":3306/" + dbName);
-                setting.put(Environment.USER, userName);
-                setting.put(Environment.PASS, password);
-                setting.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-                setting.put(Environment.SHOW_SQL, "true");
-                setting.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "tread");
-                setting.put(Environment.HBM2DDL_AUTO, "create-drop");
-                configuration.setProperties(setting);
+
+                Properties settings = new Properties();
+                settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+                settings.put(Environment.URL, "jdbc:mysql://" + hostName + ":3306/" + dbName);
+                settings.put(Environment.USER, userName);
+                settings.put(Environment.PASS, password);
+                settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+
+
+                settings.put(Environment.C3P0_MIN_SIZE, "5");
+                settings.put(Environment.C3P0_MAX_SIZE, "20");
+                settings.put(Environment.C3P0_ACQUIRE_INCREMENT, "1");
+                settings.put(Environment.C3P0_TIMEOUT, "1800");
+                settings.put(Environment.C3P0_MAX_STATEMENTS, "150");
+
+                configuration.setProperties(settings);
+
                 configuration.addAnnotatedClass(User.class);
-                ServiceRegistry serviceRegistry = (ServiceRegistry) new StandardServiceRegistryBuilder()
+
+                StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
-                sessionFactory = configuration.buildSessionFactory((org.hibernate.service.ServiceRegistry) serviceRegistry);
+
+                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
         return sessionFactory;
-    }
-    public Session getSession() {
-        return session;
-    }
-    public Transaction getTransaction() {
-        return transaction;
-    }
-    public Session openSession() {
-        return Util.getSessionFactory().openSession();
-    }
-    public Session openTransactionSession() {
-        session = openSession();
-        transaction = session.beginTransaction();
-        return session;
-    }
-    public void closeSession() {
-        session.close();
-    }
-    public void closeTransactionSession() {
-        transaction.commit();
-        closeSession();
     }
 }
