@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    public UserDaoJDBCImpl() throws SQLException, ClassNotFoundException {
+    public UserDaoJDBCImpl() {
 
     }
 
@@ -27,7 +27,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void dropUsersTable() {
 
         String sql = "drop table if exists usertable";
-        try (Connection connection = Util.getConnection(); Statement dropUT = connection.createStatement();) {
+        try (Connection connection = Util.getConnection(); Statement dropUT = connection.createStatement()) {
             dropUT.executeUpdate(sql);
             System.out.println("Таблица удалена");
         } catch (SQLException | ClassNotFoundException e) {
@@ -47,7 +47,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 saveUser.setByte(3, age);
                 saveUser.executeUpdate();
                 connection.commit();
-                System.out.println(String.format("User с именем – %s добавлен в базу данных ", name));
+                System.out.printf("User с именем – %s добавлен в базу данных %n", name);
             } catch (SQLException e) {
                 connection.rollback();
                 throw new RuntimeException();
@@ -81,7 +81,7 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> allUsers = new ArrayList<>();
         String sql = "select * from usertable";
 
-        try (Connection connection = Util.getConnection(); Statement getAllUsers = connection.createStatement();) {
+        try (Connection connection = Util.getConnection(); Statement getAllUsers = connection.createStatement()) {
 
             try {
                 connection.setAutoCommit(false);

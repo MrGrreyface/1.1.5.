@@ -6,7 +6,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import java.util.List;
 
@@ -59,9 +58,9 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            session.save(new User(name, lastName, (byte) age));
+            session.save(new User(name, lastName, age));
             transaction.commit();
-            System.out.println(String.format("User с именем – %s добавлен в базу данных ", name));
+            System.out.printf("User с именем – %s добавлен в базу данных %n", name);
         } catch (HibernateException e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -112,7 +111,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            session.createSQLQuery("DELETE FROM usertable").executeUpdate();
+            session.createSQLQuery("TRUNCATE TABLE usertable").executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
